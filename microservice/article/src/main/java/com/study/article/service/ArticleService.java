@@ -4,6 +4,7 @@ import com.study.article.entity.Article;
 import com.study.article.repository.ArticleRepository;
 import com.study.article.request.ArticleCreateRequest;
 import com.study.article.request.ArticleUpdateRequest;
+import com.study.article.response.ArticlePageResponse;
 import com.study.article.response.ArticleResponse;
 import com.study.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
@@ -40,5 +41,9 @@ public class ArticleService {
     @Transactional
     public void delete(Long articleId){
         articleRepository.deleteById(articleId);
+    }
+
+    public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize){
+        return null;
     }
 }

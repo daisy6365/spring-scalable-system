@@ -2,10 +2,13 @@ package com.study.article.controller;
 
 import com.study.article.request.ArticleCreateRequest;
 import com.study.article.request.ArticleUpdateRequest;
+import com.study.article.response.ArticlePageResponse;
 import com.study.article.response.ArticleResponse;
 import com.study.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +20,14 @@ public class ArticleController {
     public ArticleResponse read(@PathVariable Long articleId){
         return articleService.read(articleId);
     }
+
+    @GetMapping
+    public ArticlePageResponse readAll(@RequestParam("boardId") Long boardId,
+                                       @RequestParam("page") Long page,
+                                       @RequestParam("pageSize") Long pageSize){
+        return articleService.readAll(boardId, page, pageSize);
+    }
+
 
     @PostMapping
     public ArticleResponse create(@RequestBody ArticleCreateRequest request){

@@ -7,7 +7,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
+
+import java.util.List;
 
 @Slf4j
 public class ArticleApiTest {
@@ -69,6 +72,22 @@ public class ArticleApiTest {
         }
     }
 
+    @Test
+    @DisplayName("게시글을 무한스크롤 페이징 조회한다.")
+    void readAllInfiniteScrollTest(){
+        List<ArticleResponse> articleResponses1 = readAllInfiniteScroll1();
+        for (ArticleResponse article : articleResponses1) {
+            log.info("response Article ID = {}", article.getArticleId());
+        }
+
+        Long articleId = articleResponses1.getLast().getArticleId();
+        log.info("Last article id = {}", articleId);
+        List<ArticleResponse> articleResponses = readAllInfiniteScroll2(articleId);
+        for (ArticleResponse article : articleResponses) {
+            log.info("response Article ID = {}", article.getArticleId());
+        }
+    }
+
     ArticleResponse create(ArticleCreateRequest request){
         return restClient.post()
                 .uri("/v1/articles")
@@ -105,6 +124,20 @@ public class ArticleApiTest {
                 .body(ArticlePageResponse.class);
 
 
+    }
+
+    List<ArticleResponse> readAllInfiniteScroll1(){
+        return restClient.get()
+                .uri("/v1/articles/infinite-scroll?boardId=1&pageSize=30")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ArticleResponse>>() {});
+    }
+
+    List<ArticleResponse> readAllInfiniteScroll2(Long lastArticleId){
+        return restClient.get()
+                .uri("/v1/articles/infinite-scroll?boardId=1&pageSize=30&lastArticleId=%s".formatted(lastArticleId))
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ArticleResponse>>() {});
     }
 
 }

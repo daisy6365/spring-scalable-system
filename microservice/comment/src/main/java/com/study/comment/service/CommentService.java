@@ -45,7 +45,7 @@ public class CommentService {
                     }
                     else{
                         // 하위 댓글이 존재하지 않을 시, 데이터 자체를 삭제
-                        commentRepository.delete(comment);
+                        delete(comment);
                     }
                 });
     }

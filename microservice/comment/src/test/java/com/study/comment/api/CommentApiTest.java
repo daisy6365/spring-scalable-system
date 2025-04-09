@@ -1,4 +1,4 @@
-package com.study.api;
+package com.study.comment.api;
 
 import com.study.comment.response.CommentResponse;
 import lombok.AllArgsConstructor;

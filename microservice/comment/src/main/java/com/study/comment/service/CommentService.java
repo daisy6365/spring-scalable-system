@@ -3,12 +3,15 @@ package com.study.comment.service;
 import com.study.comment.entity.Comment;
 import com.study.comment.repository.CommentRepository;
 import com.study.comment.request.CommentCreateRequest;
+import com.study.comment.response.CommentPageResponse;
 import com.study.comment.response.CommentResponse;
+import com.study.comment.util.PageLimitCalculator;
 import com.study.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 @Service
@@ -88,4 +91,22 @@ public class CommentService {
         }
     }
 
+    public CommentPageResponse readAll(Long articleId, Long page, Long pageSize){
+        List<CommentResponse> commentResponses = commentRepository.findAll(articleId, (page - 1) * pageSize, pageSize).stream()
+                .map(CommentResponse::from)
+                .toList();
+        Long count = commentRepository.countByArticleId(articleId, PageLimitCalculator.calculatePageLimit(page, pageSize, 10L));
+        return CommentPageResponse.from(commentResponses, count);
+    }
+
+    public List<CommentResponse> readAll(Long articleId, Long lastParentCommentId, Long lastCommentId, Long limit){
+        // 첫번째 페이징 요청이라면?
+        List<Comment> comments = (lastParentCommentId == null || lastCommentId == null) ?
+                commentRepository.findAllInifiteScroll(articleId, limit) :
+                commentRepository.findAllInifiteScroll(articleId, lastParentCommentId, lastCommentId, limit);
+
+        return comments.stream()
+                .map(CommentResponse::from)
+                .toList();
+    }
 }

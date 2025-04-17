@@ -7,21 +7,16 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface CommentV2Repository extends JpaRepository<CommentV2, Long> {
-    @Query(value = """
-        SELECT c
-        FROM CommentV2 c
-        WHERE c.commentPath.path = :path
-   
-    """)
-    Optional<CommentV2> findByPath(@Param("path")String path);
+public interface CommentRepositoryV2 extends JpaRepository<CommentV2, Long> {
+    @Query("select c from CommentV2 c where c.commentPath.path = :path")
+    Optional<CommentV2> findByPath(@Param("path") String path);
 
     @Query(value = """
         SELECT path
         FROM  comment_v2
         WHERE article_id = :articleId
         AND path > :pathPrefix
-        AND path LIKE :pathPrefix
+        AND path LIKE :pathPrefix%
         ORDER BY path DESC
         LIMIT 1
     """, nativeQuery = true)

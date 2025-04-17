@@ -1,6 +1,7 @@
 package com.study.comment.response;
 
 import com.study.comment.entity.Comment;
+import com.study.comment.entity.CommentV2;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -15,6 +16,7 @@ public class CommentResponse {
     private Long articleId;
     private Long writerId;
     private Boolean deleted;
+    private String path;
     private LocalDateTime createdAt;
 
     public static CommentResponse from(Comment comment) {
@@ -26,6 +28,19 @@ public class CommentResponse {
         response.writerId = comment.getWriterId();
         response.deleted = comment.getDeleted();
         response.createdAt = comment.getCreatedAt();
+
+        return response;
+    }
+
+    public static CommentResponse from(CommentV2 commentV2) {
+        CommentResponse response = new CommentResponse();
+        response.commentId = commentV2.getCommentId();
+        response.content = commentV2.getContent();
+        response.path = commentV2.getCommentPath().getPath();
+        response.articleId = commentV2.getArticleId();
+        response.writerId = commentV2.getWriterId();
+        response.deleted = commentV2.getDeleted();
+        response.createdAt = commentV2.getCreatedAt();
 
         return response;
     }

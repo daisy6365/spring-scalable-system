@@ -4,6 +4,7 @@ package com.study.comment.entity;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
+@Table(name = "comment_v2")
 @Getter
 @Entity
 @ToString
@@ -26,7 +28,7 @@ public class CommentV2 {
     private Boolean deleted;
     private LocalDateTime createdAt;
 
-    public static CommentV2 create(Long commentId, String content, Long parentCommentId, Long articleId, Long writerId, CommentPath commentPath) {
+    public static CommentV2 create(Long commentId, String content, Long articleId, Long writerId, CommentPath commentPath) {
         CommentV2 comment = new CommentV2();
         comment.commentId = commentId;
         comment.content = content;

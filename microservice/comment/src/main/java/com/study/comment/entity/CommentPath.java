@@ -1,7 +1,6 @@
 package com.study.comment.entity;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,13 +12,13 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentPath {
     private String path;
-    private static final String CHARESET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int DEPTH_CHUNK_SIZE = 5;
     private static final int MAX_DEPTH = 5;
 
     // MIN_CHUNK = "00000",  MAX_CHUNK = "zzzzz"
-    private static final String MIN_CHUNK = String.valueOf(CHARESET.charAt(0)).repeat(DEPTH_CHUNK_SIZE);
-    private static final String MAX_CHUNK = String.valueOf(CHARESET.charAt(CHARESET.length() - 1)).repeat(DEPTH_CHUNK_SIZE);
+    private static final String MIN_CHUNK = String.valueOf(CHARSET.charAt(0)).repeat(DEPTH_CHUNK_SIZE);
+    private static final String MAX_CHUNK = String.valueOf(CHARSET.charAt(CHARSET.length() - 1)).repeat(DEPTH_CHUNK_SIZE);
 
     public static CommentPath create(String path) {
         // overflow 방지
@@ -45,49 +44,50 @@ public class CommentPath {
     }
 
     public boolean isRoot(){
-        return calDepth(path) == 0;
+        return calDepth(path) == 1;
     }
 
     public String getParentPath(){
         return path.substring(0, path.length() - DEPTH_CHUNK_SIZE);
     }
 
-    public CommentPath createChildCommentPath(String descendantsTopPath){
-        if(descendantsTopPath == null) {
+    public CommentPath createChildCommentPath(String descendantsTopPath) {
+        if (descendantsTopPath == null) {
             return CommentPath.create(path + MIN_CHUNK);
         }
+
         String childrenTopPath = findChildrenTopPath(descendantsTopPath);
         return CommentPath.create(increase(childrenTopPath));
     }
 
-    private String findChildrenTopPath(String descendantsTopPath){
+    private String findChildrenTopPath(String descendantsTopPath) {
         return descendantsTopPath.substring(0, (getDepth() + 1) * DEPTH_CHUNK_SIZE);
     }
 
     private String increase(String path) {
         String lastChunk = path.substring(path.length() - DEPTH_CHUNK_SIZE);
-        if(isChunkOverflow(lastChunk)){
-            throw new IllegalStateException("chunk overflow");
+        if (isChunkOverflow(lastChunk)) {
+            throw new IllegalStateException("chunk overflowed");
         }
 
         // 오버플로우가 아니라면 + 1
-        int charsetLength = CHARESET.length();
+        int charsetLength = CHARSET.length();
         int value = 0;
         for(char ch : lastChunk.toCharArray()){
-            value = value * charsetLength + CHARESET.indexOf(ch);
+            value = value * charsetLength + CHARSET.indexOf(ch);
         }
 
         value = value + 1;
         String result = "";
         for (int i = 0; i < DEPTH_CHUNK_SIZE; i++) {
-            result = CHARESET.charAt(value % charsetLength) + result;
+            result = CHARSET.charAt(value % charsetLength) + result;
             value /= charsetLength;
         }
 
         return path.substring(0, path.length() - DEPTH_CHUNK_SIZE) + result;
     }
 
-    private boolean isChunkOverflow(String lastChunk){
+    private boolean isChunkOverflow(String lastChunk) {
         return MAX_CHUNK.equals(lastChunk);
     }
 }

@@ -5,12 +5,15 @@ import com.study.comment.entity.CommentPath;
 import com.study.comment.entity.CommentV2;
 import com.study.comment.repository.CommentRepositoryV2;
 import com.study.comment.request.CommentCreateRequestV2;
+import com.study.comment.response.CommentPageResponse;
 import com.study.comment.response.CommentResponse;
+import com.study.comment.util.PageLimitCalculator;
 import com.study.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import static java.util.function.Predicate.not;
@@ -97,5 +100,23 @@ public class CommentServiceV2 {
                     // recursive
                     .ifPresent(this::delete);
         }
+    }
+    public CommentPageResponse readAll(Long articleId, Long page, Long pageSize){
+        List<CommentResponse> commentResponses = commentRepositoryV2.findAll(articleId, (page - 1) * pageSize, pageSize).stream()
+                .map(CommentResponse::from)
+                .toList();
+        Long count = commentRepositoryV2.countByArticleId(articleId, PageLimitCalculator.calculatePageLimit(page, pageSize, 10L));
+        return CommentPageResponse.from(commentResponses, count);
+    }
+
+    public List<CommentResponse> readAllInfiniteScroll(Long articleId, String lastPath, Long limit){
+        // 첫번째 페이징 요청이라면?
+        List<CommentV2> comments = lastPath == null ?
+                commentRepositoryV2.findAllInifiteScroll(articleId, limit) :
+                commentRepositoryV2.findAllInifiteScroll(articleId, lastPath, limit);
+
+        return comments.stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 }

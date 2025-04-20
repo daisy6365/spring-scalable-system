@@ -12,14 +12,14 @@ public class ArticleLikeResponse {
     private Long articleLikeId;
     private Long articleId;
     private Long userId;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     public static ArticleLikeResponse from(ArticleLike articleLike){
         ArticleLikeResponse articleLikeResponse = new ArticleLikeResponse();
         articleLikeResponse.articleLikeId = articleLike.getArticleLikeId();
         articleLikeResponse.articleId = articleLike.getArticleId();
         articleLikeResponse.userId = articleLike.getUserId();
-        articleLikeResponse.createAt = articleLike.getCreateAt();
+        articleLikeResponse.createdAt = articleLike.getCreatedAt();
         return articleLikeResponse;
     }
 }

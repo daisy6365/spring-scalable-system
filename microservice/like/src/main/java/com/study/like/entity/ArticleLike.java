@@ -18,14 +18,14 @@ public class ArticleLike {
     private Long articleLikeId;
     private Long articleId;
     private Long userId;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     public static ArticleLike create(Long articleLikeId, Long articleId, Long userId) {
         ArticleLike articleLike = new ArticleLike();
         articleLike.articleLikeId = articleLikeId;
         articleLike.articleId = articleId;
         articleLike.userId = userId;
-        articleLike.createAt = LocalDateTime.now();
+        articleLike.createdAt = LocalDateTime.now();
 
         return articleLike;
     }

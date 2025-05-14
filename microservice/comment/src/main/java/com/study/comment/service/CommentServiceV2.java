@@ -1,8 +1,10 @@
 package com.study.comment.service;
 
+import com.study.comment.entity.ArticleCommentCount;
 import com.study.comment.entity.Comment;
 import com.study.comment.entity.CommentPath;
 import com.study.comment.entity.CommentV2;
+import com.study.comment.repository.ArticleCommentCountRepository;
 import com.study.comment.repository.CommentRepositoryV2;
 import com.study.comment.request.CommentCreateRequestV2;
 import com.study.comment.response.CommentPageResponse;
@@ -23,6 +25,7 @@ import static java.util.function.Predicate.not;
 public class CommentServiceV2 {
     Snowflake snowflake = new Snowflake();
     private final CommentRepositoryV2 commentRepositoryV2;
+    private final ArticleCommentCountRepository articleCommentCountRepository;
 
     @Transactional
     public CommentResponse create(CommentCreateRequestV2 request) {
@@ -38,6 +41,13 @@ public class CommentServiceV2 {
                         commentRepositoryV2.findDescendantsTopPath(request.getArticleId(), parentCommentPath.getPath())
                                 .orElse(null)))
         );
+
+        int result = articleCommentCountRepository.increase(request.getArticleId());
+        if(result == 0){
+            articleCommentCountRepository.save(
+                    ArticleCommentCount.create(request.getArticleId(), 1L)
+            );
+        }
 
         return CommentResponse.from(commentV2);
     }
@@ -85,6 +95,8 @@ public class CommentServiceV2 {
 
     private void delete(CommentV2 comment){
         commentRepositoryV2.delete(comment);
+        // 실제 물리적으로 삭제되는 시점에만 decrease
+        articleCommentCountRepository.decrease(comment.getArticleId());
         if(!comment.isRoot()){
             // 자기 자신이 루트가 아닐 때 -> 상위댓글이 존재할 때
             // -> 상위 댓글을 재기적으로 삭제해야함
@@ -118,5 +130,11 @@ public class CommentServiceV2 {
         return comments.stream()
                 .map(CommentResponse::from)
                 .toList();
+    }
+
+    public Long count(Long articleId){
+        return articleCommentCountRepository.findById(articleId)
+                .map(ArticleCommentCount::getCommentCount)
+                .orElse(0L);
     }
 }

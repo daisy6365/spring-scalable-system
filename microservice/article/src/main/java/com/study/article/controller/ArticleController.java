@@ -21,6 +21,11 @@ public class ArticleController {
         return articleService.read(articleId);
     }
 
+    @GetMapping("/boards/{boardId}/count")
+    public Long count(@PathVariable("boardId") Long articleId) {
+        return articleService.count(articleId);
+    }
+
     @GetMapping
     public ArticlePageResponse readAll(@RequestParam("boardId") Long boardId,
                                        @RequestParam("page") Long page,

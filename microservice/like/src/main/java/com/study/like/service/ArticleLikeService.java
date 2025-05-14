@@ -23,6 +23,7 @@ public class ArticleLikeService {
                 .orElseThrow();
     }
 
+    /** [START] 비관적락 방법_1 **/
     @Transactional
     public void likePessimisticLock1(Long articleId, Long userId) {
         articleLikeRepository.save(
@@ -46,13 +47,27 @@ public class ArticleLikeService {
 
     @Transactional
     public void unlikePessimisticLock1(Long articleId, Long userId){
+        /**
+         * unlikePessimisticLock1 와 unlikePessimisticLock2에서 쿼리 수행 할 때,
+         * JPA의 delete 메소드는 조회된 Entity가 이미 삭제된 상태여도 예외를 던지지 않음
+         *
+         * 즉, 동시에 수행하게 됨
+         * [해결방법]
+         * 직접 DELETE 쿼리를 정의해야 하고, 반환 값이 0이라면 예외발생 || 메세지를 통해 중복 수행 방지
+         */
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
-                    articleLikeRepository.delete(articleLike);
+                    int resultCount = articleLikeRepository.delete(articleLike.getArticleId());
+                    if(resultCount == 0){
+                        throw new IllegalStateException();
+                    }
                     articleLikeCountRepository.decrease(articleId);
                 });
     }
+    /** [END] 비관적락 방법_1 **/
 
+
+    /** [START] 비관적락 방법_2 **/
     /**
      * select .. for update
      */
@@ -66,23 +81,56 @@ public class ArticleLikeService {
                 )
         );
 
-        articleLikeCountRepository.findLockedByArticleId(articleId)
-                        .orElseGet(() -> ArticleLikeCount.create(articleId, 0L));
-        articleLikeCountRepository.increase(articleId);
+        ArticleLikeCount articleLikeCount = articleLikeCountRepository.findLockedByArticleId(articleId)
+                // 데이터가 없다면 0으로 초기화
+                .orElseGet(() -> ArticleLikeCount.create(articleId, 0L));
+        articleLikeCount.increase();
+        articleLikeCountRepository.save(articleLikeCount);
     }
 
     @Transactional
     public void unlikePessimisticLock2(Long articleId, Long userId){
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
-                    articleLikeRepository.delete(articleLike);
-                    articleLikeCountRepository.findLockedByArticleId(articleId).orElseThrow();
-                    articleLikeCountRepository.decrease(articleId);
+                    int resultCount = articleLikeRepository.delete(articleLike.getArticleId());
+                    if(resultCount == 0){
+                        throw new IllegalStateException();
+                    }
+                    ArticleLikeCount articleLikeCount = articleLikeCountRepository.findLockedByArticleId(articleId).orElseThrow();
+                    articleLikeCount.decrease();
                 });
 
         articleLikeCountRepository.decrease(articleId);
     }
+    /** [END] 비관적락 방법_2 **/
 
+    /** [START] 낙관적락 방법 **/
+    @Transactional
+    public void likeOptimisticLock(Long articleId, Long userId) {
+        articleLikeRepository.save(
+                ArticleLike.create(
+                        snowflake.nextId(),
+                        articleId,
+                        userId
+                )
+        );
+
+        ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(articleId)
+                .orElseGet(() -> ArticleLikeCount.create(articleId, 0L));
+        articleLikeCount.increase();
+        articleLikeCountRepository.save(articleLikeCount);
+    }
+
+    @Transactional
+    public void unlikeOptimisticLock(Long articleId, Long userId){
+        articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
+                .ifPresent(articleLike -> {
+                    articleLikeRepository.delete(articleLike);
+                    ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(articleId).orElseThrow();
+                    articleLikeCount.decrease();
+                });
+    }
+    /** [END] 낙관적락 방법 **/
 
     @Transactional
     public void like(Long articleId, Long userId) {
@@ -99,5 +147,11 @@ public class ArticleLikeService {
     public void unlike(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLikeRepository::delete);
+    }
+
+    public Long count(Long articleId){
+        return articleLikeCountRepository.findById(articleId)
+                .map(ArticleLikeCount::getLikeCount)
+                .orElse(0L);
     }
 }

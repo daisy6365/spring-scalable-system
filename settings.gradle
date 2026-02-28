@@ -1,6 +1,8 @@
 rootProject.name = 'spring-scalable-system'
 include 'common'
 include 'common:snowflake'
+include 'common:data-serializer'
+include 'common:event'
 include 'microservice'
 include 'microservice:article'
 include 'microservice:comment'

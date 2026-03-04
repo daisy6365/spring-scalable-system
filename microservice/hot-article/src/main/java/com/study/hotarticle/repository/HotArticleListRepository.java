@@ -36,7 +36,12 @@ public class HotArticleListRepository {
         });
     }
 
-    public void remote(Long articleId, LocalDateTime time){
+    /**
+     * 게시글이 삭제 -> 인기글집계에서도 반영이 되어야함
+     * 게시글이 생성됐던 시간 -> Key
+     * 해당 articleId를 삭제
+     */
+    public void remove(Long articleId, LocalDateTime time){
         redisTemplate.opsForZSet().remove(generateKey(time), String.valueOf(articleId));
     }
 

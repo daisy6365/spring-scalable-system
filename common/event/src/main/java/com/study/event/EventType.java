@@ -15,8 +15,8 @@ public enum EventType {
     ARTICLE_DELETED(ArticleDeletedEventPayload.class, Topic.SCALABLE_ARTICLE),
     COMMENT_CREATED(CommentCreatedEventPayload.class, Topic.SCALABLE_COMMENT),
     COMMENT_DELETED(CommentDeletedEventPayload.class, Topic.SCALABLE_COMMENT),
-    ARTICLE_LIKE(ArticleLikedEventPayload.class, Topic.SCALABLE_LIKE),
-    ARTICLE_UNLIKE(ArticleUnlikedEventPayload.class, Topic.SCALABLE_LIKE),
+    ARTICLE_LIKED(ArticleLikedEventPayload.class, Topic.SCALABLE_LIKE),
+    ARTICLE_UNLIKED(ArticleUnlikedEventPayload.class, Topic.SCALABLE_LIKE),
     ARTICLE_VIEWED(ArticleViewEventPayload.class, Topic.SCALABLE_VIEW),;
 
     // Event가 어떤 payload type 인지

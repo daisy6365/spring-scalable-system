@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * 게시글 아이디만 저장
+ * 필요한 데이터는 service에서 한번에 조회
+ */
 @Slf4j
 @Repository
 @RequiredArgsConstructor

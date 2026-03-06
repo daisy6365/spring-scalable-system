@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 public class ArticleDeletedEventPayload implements EventPayload {
     private Long articleId;
     private String title;
-    private String boardId;
+    private String content;
+    private Long boardId;
     private Long writerId;
     private LocalDateTime createAt;
     private LocalDateTime modifiedAt;

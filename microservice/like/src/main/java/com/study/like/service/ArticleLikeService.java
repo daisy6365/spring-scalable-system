@@ -1,10 +1,14 @@
 package com.study.like.service;
 
+import com.study.event.EventType;
+import com.study.event.payload.ArticleLikedEventPayload;
+import com.study.event.payload.ArticleUnlikedEventPayload;
 import com.study.like.entity.ArticleLike;
 import com.study.like.entity.ArticleLikeCount;
 import com.study.like.repository.ArticleLikeCountRepository;
 import com.study.like.repository.ArticleLikeRepository;
 import com.study.like.response.ArticleLikeResponse;
+import com.study.outboxmessagerelay.OutboxEventPublisher;
 import com.study.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +20,7 @@ public class ArticleLikeService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleLikeRepository articleLikeRepository;
     private final ArticleLikeCountRepository articleLikeCountRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     public ArticleLikeResponse read(Long articleId, Long userId) {
         return articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
@@ -26,7 +31,7 @@ public class ArticleLikeService {
     /** [START] 비관적락 방법_1 **/
     @Transactional
     public void likePessimisticLock1(Long articleId, Long userId) {
-        articleLikeRepository.save(
+        ArticleLike articleLike = articleLikeRepository.save(
                 ArticleLike.create(
                         snowflake.nextId(),
                         articleId,
@@ -43,6 +48,18 @@ public class ArticleLikeService {
                     ArticleLikeCount.create(articleId, 1L)
             );
         }
+
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_LIKED,
+                ArticleLikedEventPayload.builder()
+                        .articleLikeId(articleLike.getArticleLikeId())
+                        .articleId(articleLike.getArticleId())
+                        .userId(articleLike.getUserId())
+                        .createAt(articleLike.getCreatedAt())
+                        .articleLikeCount(count(articleLike.getArticleId()))
+                        .build(),
+                articleLike.getArticleId()
+        );
     }
 
     @Transactional
@@ -62,6 +79,18 @@ public class ArticleLikeService {
                         throw new IllegalStateException();
                     }
                     articleLikeCountRepository.decrease(articleId);
+
+                    outboxEventPublisher.publish(
+                            EventType.ARTICLE_UNLIKED,
+                            ArticleUnlikedEventPayload.builder()
+                                    .articleLikeId(articleLike.getArticleLikeId())
+                                    .articleId(articleLike.getArticleId())
+                                    .userId(articleLike.getUserId())
+                                    .createAt(articleLike.getCreatedAt())
+                                    .articleLikeCount(count(articleLike.getArticleId()))
+                                    .build(),
+                            articleLike.getArticleId()
+                    );
                 });
     }
     /** [END] 비관적락 방법_1 **/

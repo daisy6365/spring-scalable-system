@@ -16,7 +16,7 @@ public class Article {
     private Long articleId;
     private String title;
     private String content;
-    private Long boardId;
+    private Long boardId; // shard Key
     private Long writerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

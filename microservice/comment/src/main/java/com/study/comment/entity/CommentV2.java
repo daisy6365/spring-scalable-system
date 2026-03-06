@@ -21,7 +21,7 @@ public class CommentV2 {
     @Id
     private Long commentId;
     private String content;
-    private Long articleId;
+    private Long articleId; // shard Key
     private Long writerId;
     @Embedded
     private CommentPath commentPath;

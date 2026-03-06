@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class ArticleLike {
     @Id
     private Long articleLikeId;
-    private Long articleId;
+    private Long articleId; // shard Key
     private Long userId;
     private LocalDateTime createdAt;
 

@@ -1,0 +1,3 @@
+# outbox-message-relay 모듈을 의존성추가한 서비스 실행 시,
+# 자동으로 MessageRelayConfig 읽음 -> ComponentScan을 통해 빈 등록
+com.study.outboxmessagerelay.MessageRelayConfig

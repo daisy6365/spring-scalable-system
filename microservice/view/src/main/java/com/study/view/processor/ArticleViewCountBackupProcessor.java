@@ -1,7 +1,7 @@
 package com.study.view.processor;
 
 import com.study.event.EventType;
-import com.study.event.payload.ArticleViewEventPayload;
+import com.study.event.payload.ArticleViewedEventPayload;
 import com.study.outboxmessagerelay.OutboxEventPublisher;
 import com.study.view.entity.ArticleViewCount;
 import com.study.view.repository.ArticleViewCountBackUpRepository;
@@ -28,7 +28,7 @@ public class ArticleViewCountBackupProcessor {
 
         outboxEventPublisher.publish(
                 EventType.ARTICLE_VIEWED,
-                ArticleViewEventPayload.builder()
+                ArticleViewedEventPayload.builder()
                         .articleId(articleId)
                         .articleViewCount(viewCount)
                         .build(),

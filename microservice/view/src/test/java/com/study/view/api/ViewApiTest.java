@@ -21,7 +21,7 @@ public class ViewApiTest {
         for (int i = 0; i < 10000; i++) {
             executorService.submit(() -> {
                 restClient.post()
-                        .uri("/v1/article-views/articles/{articleId}/users/{userId}", 1L, 1L)
+                        .uri("/v1/articles-views/articles/{articleId}/users/{userId}", 1L, 1L)
                         .retrieve();
                 countDownLatch.countDown();
             });
@@ -30,7 +30,7 @@ public class ViewApiTest {
         countDownLatch.await();
 
         Long count = restClient.get()
-                .uri("/v1/article-views/articles/{articleId}/users/{userId}", 1L, 1L)
+                .uri("/v1/articles-views/articles/{articleId}/users/{userId}", 1L, 1L)
                 .retrieve()
                 .body(Long.class);
 

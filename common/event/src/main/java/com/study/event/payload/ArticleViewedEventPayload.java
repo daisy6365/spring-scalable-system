@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleViewEventPayload implements EventPayload {
+public class ArticleViewedEventPayload implements EventPayload {
     private Long articleId;
     private Long articleViewCount;
 }

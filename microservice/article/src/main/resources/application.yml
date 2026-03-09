@@ -11,10 +11,10 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: none
-    generate-ddl: true
+    generate-ddl: false
   data:
     redis:
       host: 127.0.0.1

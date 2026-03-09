@@ -61,7 +61,7 @@ public class HotArticleListRepository {
         return redisTemplate.opsForZSet()
                 .reverseRangeWithScores(generateKey(dataStr), 0, -1).stream()
                 .peek(tuple -> {
-                    log.info("[HotArticleRepository.readAll] articleId = {}, score={}", tuple.getScore(), tuple.getValue());
+                    log.info("[HotArticleRepository.readAll] articleId = {}, score={}", tuple.getValue(), tuple.getScore());
                 })
                 .map(ZSetOperations.TypedTuple::getValue)
                 .map(Long::valueOf)

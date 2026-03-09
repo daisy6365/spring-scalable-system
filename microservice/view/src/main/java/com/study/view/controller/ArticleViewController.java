@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/article-views")
+@RequestMapping("/v1/articles-views")
 public class ArticleViewController {
     private final ArticleViewService articleViewService;
 

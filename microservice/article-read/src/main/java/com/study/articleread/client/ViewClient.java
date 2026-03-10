@@ -42,7 +42,7 @@ public class ViewClient {
         log.info("[ViewClient.count] articleId = {}", articleId);
         try{
             return restClient.get()
-                    .uri("/v1/article-views/articles/{articleId}/count", articleId)
+                    .uri("/v1/articles-views/articles/{articleId}/count", articleId)
                     .retrieve()
                     .body(Long.class);
         } catch (Exception e) {

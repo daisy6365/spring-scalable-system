@@ -16,7 +16,7 @@ public class ArticleViewCountRepository {
     public Long read(Long articleId) {
         String result = redisTemplate.opsForValue().get(generatedKey(articleId));
 
-        return result == null ? null : Long.parseLong(result);
+        return result == null ? 0L : Long.parseLong(result);
     }
 
     // 조회수 증가 메소드

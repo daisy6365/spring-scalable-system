@@ -38,12 +38,16 @@ class ViewClientTest {
             CountDownLatch latch = new CountDownLatch(5);
 
             for (int j = 0; j < 5; j++) {
+                // 만료 후 Thread 5개 동시 호출
+                // [ViewClient.count] articleId = 1
+                // -> @Cacheable이 활용되지 못하고, ViewClient를 통해 원본서버 5번 호출
                 executorService.submit(() -> {
                     viewClient.count(1L);
                     latch.countDown();
                 });
             }
             latch.await();
+            // TTL 만료까지 sleep
             TimeUnit.SECONDS.sleep(2);
             System.out.println("=== cache expired ===");
         }

@@ -1,5 +1,6 @@
 package com.study.articleread.client;
 
+import com.study.articleread.cache.OptimizedCacheable;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,8 @@ public class ViewClient {
      * ii) 데이터가 존재한다면
      * 해당 데이터를 그대로 반환, count() 메소드는 수행하지 않음
      */
-    @Cacheable(key = "#articleId", value = "articleViewCount")
+//    @Cacheable(key = "#articleId", value = "articleViewCount")
+    @OptimizedCacheable(type = "articleViewCount", ttlSeconds = 1)
     public long count(Long articleId){
         log.info("[ViewClient.count] articleId = {}", articleId);
         try{

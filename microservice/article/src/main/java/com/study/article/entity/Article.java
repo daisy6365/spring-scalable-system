@@ -16,7 +16,14 @@ public class Article {
     private Long articleId;
     private String title;
     private String content;
-    private Long boardId; // shard Key
+    /**
+     * Shard Key
+     * 특정 단위로 나누어 데이터베이스에 분산 저장
+     * -> 특정 단위로 나뉘는 기준 : 가장 많이 조회되는 패턴을 고려
+     * articleId -> 게시글마다 샤드 분산 저장
+     * boardId -> 게시판 종류별로 샤드 분산 저장
+     */
+    private Long boardId;
     private Long writerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

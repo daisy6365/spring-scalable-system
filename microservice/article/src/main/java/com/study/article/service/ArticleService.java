@@ -25,6 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
+    // 동일 인스턴스에서 상태 유지
     private final Snowflake snowflake = new Snowflake();
     private final ArticleRepository articleRepository;
     private final BoardArticleCountRepository boardArticleCountRepository;
@@ -35,6 +36,7 @@ public class ArticleService {
         Article article = articleRepository.save(
                 Article.create(snowflake.nextId(), request.getTitle(), request.getContent(), request.getBoardId(), request.getWriterId())
         );
+        // 게시판의 글 갯수 카운트
         int result = boardArticleCountRepository.increase(request.getBoardId());
         if(result == 0) {
             boardArticleCountRepository.save(
@@ -121,9 +123,16 @@ public class ArticleService {
         return ArticlePageResponse.from(articleResponses, count);
     }
 
+    /**
+     * 무한 스크롤 설계
+     * @param lastArticleId : 현재 어디까지 봤는지 나타내는 커서
+     * @return
+     */
     public List<ArticleResponse> readAllInfiniteScroll(Long boardId, Long pageSize, Long lastArticleId){
         List<Article> articles = lastArticleId == null ?
+                // 처음 조회
                 articleRepository.findAllInfiniteScroll(boardId, pageSize) :
+                // 현재 본 게시글 다음부터 조회
                 articleRepository.findAllInfiniteScroll(boardId, pageSize, lastArticleId);
 
         return articles.stream()
